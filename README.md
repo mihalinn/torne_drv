@@ -1,35 +1,47 @@
 # torne_drv
 
-A Linux driver for the **Sony CECH-ZD1 J** ("torne", the PS3 terrestrial tuner) that looks like [px4_drv](https://github.com/nns779/px4_drv) from the outside.
+PS3用の地デジチューナー **Sony CECH-ZD1 J(torne)** を、[px4_drv](https://github.com/nns779/px4_drv) と同じ形で使えるようにする Linux ドライバーです。
 
-- Video: `/dev/tornevideoN`, with the same ioctl and `read()` interface as `/dev/px4video*`. `recisdb`, `recpt1`, Mirakurun, EDCB and KonomiTV use it like a PLEX tuner.
-- B-CAS card: the torne's built-in card slot is shown to `pcscd` as a normal reader (`/dev/tornecardN` plus a pcscd driver), so the card can be left in the torne.
-- ISDB-T (terrestrial) only. One tuner per device. **Torne only**: nothing else is supported.
+[English](README.en.md)
 
-> **Status: beta.** Tested with one torne, Ubuntu 22.04 (kernel 5.15), x86-64. Not tested: other kernels, two or more devices, long runs beyond some hours. See [Limitations](#limitations).
+- **映像:** `/dev/tornevideoN` ができます。`/dev/px4video*` と同じ ioctl・`read()` なので、`recisdb`、`recpt1`、Mirakurun、EDCB、KonomiTV から、PLEX のチューナーと同じように使えます。
+- **B-CAS カード:** torne 本体のカードスロットを、pcscd から普通のリーダーとして使えます(`/dev/tornecardN` と pcscd 用ドライバー)。カードは torne に差したままにできます。
+- **地デジ(ISDB-T)のみ。** 1台につきチューナー1基です。**torne 専用**で、ほかの機器には対応しません。
 
-## What it is built from
+> **ベータ版です。** 確認したのは、torne 1台、Ubuntu 22.04(カーネル 5.15)、x86-64 だけです。ほかのカーネル、2台以上、長時間の運用は未確認です。[制限](#制限)も読んでください。
 
-The hard part, working out how the torne's Fujitsu MB86H47A USB bridge is driven, was done by [coax](https://github.com/Till0196/coax) (Till0196). This driver is a port of coax's bridge and DiB8096 code from Go to C, put into a kernel module, with px4_drv's character device layer on top. See [NOTICE](NOTICE). It is **not** a fork of either project.
+## 元にしたもの
 
-## Install
+torne の富士通 MB86H47A という USB ブリッジの動かし方は、[coax](https://github.com/Till0196/coax)(Till0196 さん)が解析したものです。このドライバーは、coax のブリッジと DiB8096 の処理を Go から C に移して、カーネルモジュールにし、px4_drv の文字デバイス層を載せたものです。詳しくは [NOTICE](NOTICE) を見てください。**どちらのフォークでもありません。**
+
+## 必要なもの
+
+- Linux(x86-64)。Ubuntu 22.04 / カーネル 5.15 で確認しています。
+- torne(CECH-ZD1 J)、アンテナ、B-CAS カード(torne のスロットに差す)。
+- 録画ソフト側: `recisdb` や Mirakurun など、px4_drv のチューナーを使えるもの。
+
+## インストール
 
 ```sh
 sudo apt install dkms linux-headers-$(uname -r) build-essential libpcsclite-dev pcscd
-make                  # builds the pcscd driver (ifd/) and the user-space test tool (tools/)
-sudo ./install.sh     # DKMS kernel module, udev rules, pcscd driver
+make                  # pcscd 用ドライバー(ifd/)と試験ツール(tools/)をビルド
+sudo ./install.sh     # DKMS のカーネルモジュール、udev ルール、pcscd ドライバーを入れる
 ```
 
-You get `/dev/tornevideo0` and `/dev/tornecard0`. Remove with `sudo ./install.sh uninstall`.
+`/dev/tornevideo0` と `/dev/tornecard0` ができます。取り外しは `sudo ./install.sh uninstall` です。
 
-## Use
+pcscd のドライバーを入れたあとは、`sudo systemctl restart pcscd.socket pcscd` で、リーダーが見えるようになります(`pcsc_scan` で「Sony CECH-ZD1 J Smart Card Reader」が出れば成功です)。
+
+## 使い方
 
 ```sh
-recisdb tune --device /dev/tornevideo0 --channel T33 -t 60 out.ts            # decoded through pcscd
+# pcscd のカードで復号しながら録画
+recisdb tune --device /dev/tornevideo0 --channel T33 -t 60 out.ts
+# 復号しない
 recisdb tune --device /dev/tornevideo0 --channel T33 --no-decode -t 60 out.ts
 ```
 
-Mirakurun `tuners.yml`, in the same form as for PLEX tuners:
+Mirakurun の `tuners.yml` は、PLEX のチューナーと同じ書き方です(地デジのみ)。
 
 ```yaml
 - name: 'Sony torne'
@@ -39,38 +51,43 @@ Mirakurun `tuners.yml`, in the same form as for PLEX tuners:
   isDisabled: false
 ```
 
-Channels are selected with px4_drv's ioctl (`PTX_SET_CHANNEL`; UHF 13-62ch is `freq_no = ch + 50`).
+チャンネルの指定は px4_drv の ioctl(`PTX_SET_CHANNEL`)と同じです。地デジ UHF 13〜62ch は `freq_no = ch + 50` です。
 
-## Limitations
+## 制限
 
-- **One tuner, terrestrial only.** Watching, recording and EPG gathering share it.
-- **The bridge starts only from its power-up state.** After another driver or OS has used the torne, replug it.
-- **Tuning takes 2-3 s.** The register writes go over USB one by one (coax's ring and command channel speed-ups are not ported).
-- **Several devices are untested.** Device numbers (`tornevideo0`, `tornevideo1`) follow the probe order, not the port. If you use more than one, bind each card to its tuner yourself (recisdb `--card`).
-- **Hot unplug works** (the device comes back when replugged), but a stream that was running does not resume by itself; start it again.
-- Only tested on Ubuntu 22.04 with kernel 5.15.
+- **チューナーは1基で、地デジのみ。** 視聴、録画、番組表(EPG)の取得は、同時にできません。
+- **電源を入れた直後の状態でしか起動できません。** ほかのソフトや OS が torne を使った後は、USB を抜き差ししてください。
+- **選局に 2〜3 秒かかります。** レジスタの書き込みを USB で1つずつ送るためです(coax のリング・コマンドチャンネルによる高速化は移植していません)。
+- **複数台は未確認です。** `tornevideo0`、`tornevideo1` の番号は、差した位置ではなく、認識された順です。複数台で使うときは、recisdb の `--card` で、チューナーとカードの組み合わせを自分で指定してください。
+- **USB を抜き差ししても、デバイスは自動で復帰します。** ただし、止まった視聴や録画は、自動では再開しません。もう一度始めてください。
+- **Ubuntu 22.04 / カーネル 5.15 以外は未確認です。**
 
-## Layout
+## 構成
 
-| Path | |
+| 場所 | 内容 |
 | --- | --- |
-| `driver/` | the kernel module (`torne_kern.c`), the OS-independent core (`torne_bridge.c`, `torne_dib.c`, `torne_card.c`), px4_drv's character device layer |
-| `ifd/` | the pcscd reader driver for the card slot |
-| `tools/` | `torne_user` (the same core run from user space with libusb), test scripts, and the generators for the tables and machine code (`tools/gen`) |
-| `udev/` | udev rules |
+| `driver/` | カーネルモジュール(`torne_kern.c`)、OS に依存しない中核(`torne_bridge.c` `torne_dib.c` `torne_card.c`)、px4_drv の文字デバイス層 |
+| `ifd/` | カードスロット用の pcscd リーダードライバー |
+| `tools/` | `torne_user`(同じ中核を libusb でユーザー空間から動かす試験ツール)、試験スクリプト、表と機械語の生成プログラム(`tools/gen`) |
+| `udev/` | udev ルール |
 
-The `driver/torne_fw_gen.h` and `driver/torne_dib_tables_gen.h` files are generated from coax with the programs in `tools/gen` (see the comments in them).
+`driver/torne_fw_gen.h` と `driver/torne_dib_tables_gen.h` は、coax から自動生成したものです。作り方は [tools/gen/README.md](tools/gen/README.md) にあります。
 
-## Testing without the kernel module
+## カーネルモジュールなしでの試験
+
+カーネルモジュールを外してから使います(両方は同時に torne を使えません)。
 
 ```sh
 sudo rmmod torne_drv
-sudo tools/torne_user probe             # bridge start, DiB8000 ID
-sudo tools/torne_user tune 33 10 > t.ts # tune UHF 33ch for 10 s
-sudo tools/torne_user card              # the card slot
-tools/torne_user emu-trace              # run against a fake memory device and print the USB requests (identical to coax's, apart from its bulk command channel setup, which is not ported)
+sudo tools/torne_user probe             # ブリッジの起動と DiB8000 の ID 確認
+sudo tools/torne_user tune 33 10 > t.ts # 地デジ 33ch を 10 秒受信
+sudo tools/torne_user card              # カードスロット(ATR と B-CAS の初期化コマンド)
+tools/torne_user emu-trace              # 偽のメモリデバイスで USB 要求の列を出す
+                                        # (coax の Go 版と同じ。coax の bulk コマンドチャンネルの設定だけは移植していないので除く)
 ```
 
-## License
+## ライセンス
 
-GPL-2.0-only. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+**GPL-2.0-only。** [LICENSE](LICENSE) と [NOTICE](NOTICE) を見てください。
+
+Sony、PlayStation、torne は、それぞれの権利者の商標です。このプロジェクトは、Sony、DiBcom、富士通、PLEX、および [NOTICE](NOTICE) に挙げたプロジェクトとは、関係ありません。
