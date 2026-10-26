@@ -1,0 +1,6 @@
+# torne (Sony CECH-ZD1 J) の映像デバイスとカードスロットを video グループで使えるようにする
+KERNEL=="tornevideo*", GROUP="video", MODE="0664"
+KERNEL=="tornecard*", GROUP="video", MODE="0660"
+
+# USB の自動サスペンドを切って、受信中や待機中にデバイスが眠らないようにする
+SUBSYSTEM=="usb", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="04b2", ACTION=="add", TEST=="power/control", ATTR{power/control}="on"

@@ -1,0 +1,302 @@
+/* generated from coax internal/coaxd/demod/dib8096 (tables.go, board.go) by gen_dib_test.go - do not edit */
+
+static const s16 ana_fe_coeff_3seg[24] = {
+	81, 80, 78, 74, 68, 61, 54, 45, 37, 28, 
+	19, 11, 4, 1022, 1017, 1013, 1010, 1008, 1008, 1008, 
+	1008, 1010, 1014, 1017, 
+};
+
+static const s16 ana_fe_coeff_1seg[24] = {
+	249, 226, 164, 82, 5, 981, 970, 988, 1018, 20, 
+	31, 26, 8, 1012, 1000, 1018, 1012, 8, 15, 14, 
+	9, 3, 1017, 1003, 
+};
+
+static const s16 ana_fe_coeff_13seg[24] = {
+	396, 305, 105, -51, -77, -12, 41, 31, -11, -30, 
+	-11, 14, 15, -2, -13, -7, 5, 8, 1, -6, 
+	-7, -3, 0, 1, 
+};
+
+static const u16 dib8000_defaults[89] = {
+	3, 7, 4, 1024, 2068, 12, 11, 27, 30528, 91, 
+	36224, 457, 50048, 0, 128, 0, 144, 1, 54464, 11, 
+	80, 7250, 7238, 7264, 7309, 7338, 7382, 7427, 7456, 7500, 
+	7544, 7574, 4, 108, 0, 0, 0, 0, 1, 175, 
+	1040, 1, 179, 8192, 6, 181, 10240, 10240, 10240, 10240, 
+	10240, 10240, 2, 193, 1638, 0, 2, 205, 8207, 15, 
+	5, 215, 573, 164, 164, 32752, 15564, 1, 230, 0, 
+	1, 263, 2048, 1, 268, 1063, 1, 270, 1, 1, 
+	285, 32, 1, 299, 98, 1, 338, 5217, 0, 
+};
+
+static const u16 adc_target_16db[11] = {
+	7250, 7238, 7264, 7309, 7338, 7382, 7427, 7456, 7500, 7544, 
+	7574, 
+};
+
+static const u16 adp_q64[4] = {
+	328, 65520, 164, 65528, 
+};
+
+static const u16 adp_q16[4] = {
+	573, 65503, 164, 65520, 
+};
+
+static const u16 adp_q_default[4] = {
+	2458, 65454, 819, 65528, 
+};
+
+static const u8 permu_seg[13] = {6, 5, 7, 4, 8, 3, 9, 2, 10, 1, 11, 0, 12, };
+
+static const struct linear_segment strength_to_db_table[31] = {
+	{ 55953, 108500 },
+	{ 55394, 108000 },
+	{ 53834, 107000 },
+	{ 52863, 106000 },
+	{ 52239, 105000 },
+	{ 52012, 104000 },
+	{ 51803, 103000 },
+	{ 51566, 102000 },
+	{ 51356, 101000 },
+	{ 51112, 100000 },
+	{ 50869, 99000 },
+	{ 50600, 98000 },
+	{ 50363, 97000 },
+	{ 50117, 96000 },
+	{ 49889, 95000 },
+	{ 49680, 94000 },
+	{ 49493, 93000 },
+	{ 49302, 92000 },
+	{ 48929, 91000 },
+	{ 48416, 90000 },
+	{ 48035, 89000 },
+	{ 47593, 88000 },
+	{ 47282, 87000 },
+	{ 46953, 86000 },
+	{ 46698, 85000 },
+	{ 45617, 84000 },
+	{ 44773, 83000 },
+	{ 43845, 82000 },
+	{ 43020, 81000 },
+	{ 42010, 80000 },
+	{ 0, 0 },
+};
+
+static const u16 bb_ramp_pwm_normal[7] = {
+	500, 8, 400, 1024, 168, 1192, 400, 
+};
+
+static const u16 bb_ramp_pwm_normal_socs[7] = {
+	550, 520, 440, 2048, 208, 2256, 440, 
+};
+
+static const u16 rf_ramp_pwm_cband_7090p[11] = {
+	280, 18, 504, 30060, 504, 61668, 364, 34925, 228, 37888, 
+	109, 
+};
+
+static const u16 rf_ramp_pwm_cband[11] = {
+	314, 33, 1023, 8935, 1023, 15829, 742, 9450, 468, 9216, 
+	233, 
+};
+
+static const u16 rf_ramp_pwm_vhf[11] = {
+	398, 24, 954, 7168, 290, 17083, 954, 17988, 699, 7458, 
+	580, 
+};
+
+static const u16 rf_ramp_pwm_uhf[11] = {
+	398, 24, 954, 7168, 290, 17083, 954, 17988, 699, 7458, 
+	580, 
+};
+
+static const s32 lut_1000ln_mant[11] = {
+	908, 7003, 7090, 7170, 7244, 7313, 7377, 7438, 7495, 7549, 
+	7600, 
+};
+
+static const u16 dib0090_defaults[45] = {
+	25, 1, 0, 39328, 24584, 0, 35787, 0, 1029, 0, 
+	0, 0, 47106, 768, 11538, 47808, 31744, 56249, 2388, 1859, 
+	32768, 1, 64, 256, 0, 59664, 5278, 1, 28, 65325, 
+	1, 57, 0, 2, 30, 2047, 7, 1, 36, 8939, 
+	2, 60, 1023, 273, 0, 
+};
+
+static const u16 dib0090_p1g_additional_defaults[13] = {
+	1, 5, 43981, 1, 17, 180, 1, 28, 65533, 1, 
+	64, 264, 0, 
+};
+
+static const struct dc_calibration dc_table[5] = {
+	{ 0x6, 5, 1, 0x20d0, 1 },
+	{ 0x7, 11, 1, 0x20d0, 0 },
+	{ 0x6, 0, 0, 0x3dd0, 1 },
+	{ 0x6, 10, 0, 0x3dd0, 0 },
+	{ 0x0, 0, 0, 0x0, 0 },
+};
+
+static const struct dc_calibration dc_p1g_table[5] = {
+	{ 0x6, 5, 1, 0x2078, 1 },
+	{ 0x7, 11, 1, 0x2078, 0 },
+	{ 0x6, 0, 0, 0x3d78, 1 },
+	{ 0x6, 10, 0, 0x3d78, 0 },
+	{ 0x0, 0, 0, 0x0, 0 },
+};
+
+static const struct pll_entry dib0090_pll_table[16] = {
+	{ 56000, 0, 9, 48, 6 },
+	{ 70000, 1, 9, 48, 6 },
+	{ 87000, 0, 8, 32, 4 },
+	{ 105000, 1, 8, 32, 4 },
+	{ 115000, 0, 7, 24, 6 },
+	{ 140000, 1, 7, 24, 6 },
+	{ 170000, 0, 6, 16, 4 },
+	{ 200000, 1, 6, 16, 4 },
+	{ 230000, 0, 5, 12, 6 },
+	{ 280000, 1, 5, 12, 6 },
+	{ 340000, 0, 4, 8, 4 },
+	{ 380000, 1, 4, 8, 4 },
+	{ 450000, 0, 3, 6, 6 },
+	{ 580000, 1, 3, 6, 6 },
+	{ 700000, 0, 2, 4, 4 },
+	{ 860000, 1, 2, 4, 4 },
+};
+
+static const struct pll_entry dib0090_p1g_pll_table[16] = {
+	{ 57000, 0, 11, 48, 6 },
+	{ 70000, 1, 11, 48, 6 },
+	{ 86000, 0, 10, 32, 4 },
+	{ 105000, 1, 10, 32, 4 },
+	{ 115000, 0, 9, 24, 6 },
+	{ 140000, 1, 9, 24, 6 },
+	{ 170000, 0, 8, 16, 4 },
+	{ 200000, 1, 8, 16, 4 },
+	{ 230000, 0, 7, 12, 6 },
+	{ 280000, 1, 7, 12, 6 },
+	{ 340000, 0, 6, 8, 4 },
+	{ 380000, 1, 6, 8, 4 },
+	{ 455000, 0, 5, 6, 6 },
+	{ 580000, 1, 5, 6, 6 },
+	{ 680000, 0, 4, 4, 4 },
+	{ 860000, 1, 4, 4, 4 },
+};
+
+static const struct tuning_entry dib0090_tuning_table_fm_vhf_on_cband[9] = {
+	{ 184000, 4, 1, 15, 0x280, 0x2912, 0xb94e, 0x88e9 },
+	{ 227000, 4, 3, 15, 0x280, 0x2912, 0xb94e, 0x88e9 },
+	{ 380000, 4, 7, 15, 0x280, 0x2912, 0xb94e, 0x88e9 },
+	{ 520000, 2, 0, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 550000, 2, 2, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 650000, 2, 3, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 750000, 2, 5, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 850000, 2, 6, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 900000, 2, 7, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+};
+
+static const struct tuning_entry dib0090_tuning_table[10] = {
+	{ 170000, 4, 1, 15, 0x280, 0x2912, 0xb94e, 0x88e9 },
+	{ 184000, 1, 1, 15, 0x300, 0x4d12, 0xb94e, 0x44e9 },
+	{ 227000, 1, 3, 15, 0x300, 0x4d12, 0xb94e, 0x44e9 },
+	{ 380000, 1, 7, 15, 0x300, 0x4d12, 0xb94e, 0x44e9 },
+	{ 520000, 2, 0, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 550000, 2, 2, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 650000, 2, 3, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 750000, 2, 5, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 850000, 2, 6, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 900000, 2, 7, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+};
+
+static const struct tuning_entry dib0090_p1g_tuning_table[11] = {
+	{ 170000, 4, 1, 33295, 0x300, 0x2d22, 0x82cb, 0x88e9 },
+	{ 184000, 1, 1, 15, 0x300, 0x4d12, 0xb94e, 0x44e9 },
+	{ 227000, 1, 3, 15, 0x300, 0x4d12, 0xb94e, 0x44e9 },
+	{ 380000, 1, 7, 15, 0x300, 0x4d12, 0xb94e, 0x44e9 },
+	{ 510000, 2, 0, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 540000, 2, 1, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 600000, 2, 3, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 630000, 2, 4, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 680000, 2, 5, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 720000, 2, 6, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 900000, 2, 7, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+};
+
+static const struct tuning_entry dib0090_p1g_tuning_table_fm_vhf_on_cband[9] = {
+	{ 184000, 4, 3, 16775, 0x2c0, 0x2d22, 0x81cb, 0x88e9 },
+	{ 227000, 4, 3, 16775, 0x2c0, 0x2d22, 0x81cb, 0x88e9 },
+	{ 380000, 4, 3, 16775, 0x2c0, 0x2d22, 0x81cb, 0x88e9 },
+	{ 520000, 2, 0, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 550000, 2, 2, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 650000, 2, 3, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 750000, 2, 5, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 850000, 2, 6, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+	{ 900000, 2, 7, 15, 0x300, 0x1d12, 0xb9ce, 0x22e9 },
+};
+
+static const struct wbd_slope dib0090_wbd_table_default[5] = {
+	{ 470, 0, 250, 0, 100, 4 },
+	{ 860, 51, 866, 21, 375, 4 },
+	{ 1700, 0, 800, 0, 850, 4 },
+	{ 2900, 0, 250, 0, 100, 6 },
+	{ 65535, 0, 0, 0, 0, 0 },
+};
+
+static const struct wbd_slope dib8090_wbd_table[5] = {
+	{ 120, 0, 500, 0, 500, 4 },
+	{ 170, 0, 450, 0, 450, 4 },
+	{ 380, 48, 373, 28, 259, 6 },
+	{ 860, 34, 700, 36, 616, 6 },
+	{ 65535, 34, 700, 36, 616, 6 },
+};
+
+static const struct agc_config dib8090_agc_config[2] = {
+	{ .band_caps = 0xf, .setup = 10346, .inv_gain = 787, .time_stabiliz = 10, .alpha_level = 0, .thlock = 118,
+	  .wbd_inv = 0, .wbd_ref = 3530, .wbd_sel = 1, .wbd_alpha = 5,
+	  .agc1_max = 65535, .agc1_min = 0, .agc2_max = 65535, .agc2_min = 0,
+	  .agc1_pt1 = 0, .agc1_pt2 = 32, .agc1_pt3 = 114, .agc1_slope1 = 143, .agc1_slope2 = 144,
+	  .agc2_pt1 = 114, .agc2_pt2 = 227, .agc2_slope1 = 116, .agc2_slope2 = 117,
+	  .alpha_mant = 28, .alpha_exp = 26, .beta_mant = 31, .beta_exp = 51, .perform_agc_softsplit = 0 },
+	{ .band_caps = 0x20, .setup = 10346, .inv_gain = 787, .time_stabiliz = 10, .alpha_level = 0, .thlock = 118,
+	  .wbd_inv = 0, .wbd_ref = 3530, .wbd_sel = 1, .wbd_alpha = 5,
+	  .agc1_max = 0, .agc1_min = 0, .agc2_max = 65535, .agc2_min = 0,
+	  .agc1_pt1 = 0, .agc1_pt2 = 32, .agc1_pt3 = 114, .agc1_slope1 = 143, .agc1_slope2 = 144,
+	  .agc2_pt1 = 114, .agc2_pt2 = 227, .agc2_slope1 = 116, .agc2_slope2 = 117,
+	  .alpha_mant = 28, .alpha_exp = 26, .beta_mant = 31, .beta_exp = 51, .perform_agc_softsplit = 0 },
+};
+
+static const struct bandwidth_config dib8090_pll_config_12mhz = {
+	.internal = 54000, .sampling = 13500, .pll_prediv = 1, .pll_ratio = 18, .pll_range = 3, .pll_reset = 1, .pll_bypass = 0,
+	.enable_refdiv = 0, .bypclk_div = 0, .io_clk_en_core = 1, .adc_clk_src = 1, .modulo = 2,
+	.sad_cfg = 53847, .ifreq = 0, .timf = 20199727, .xtal_hz = 12000000,
+};
+
+#define DIB8000_CFG_OUTPUT_MPEG2_IN_188_BYTES 1
+#define DIB8000_CFG_TUNER_IS_BASEBAND 1
+#define DIB8000_CFG_GPIO_DIR 0xffff
+#define DIB8000_CFG_GPIO_VAL 0x0
+#define DIB8000_CFG_GPIO_PWM_POS 0xffff
+#define DIB8000_CFG_PWM_FREQ_DIV 0
+#define DIB8000_CFG_HOSTBUS_DIVERSITY 1
+#define DIB8000_CFG_DIV_CFG 0x31
+#define DIB8000_CFG_OUTPUT_MODE 1
+#define DIB8000_CFG_DRIVES 0x2d98
+#define DIB8000_CFG_DIVERSITY_DELAY 48
+#define DIB8000_CFG_REFCLKSEL 3
+#define DIB0090_CFG_CLKOUTTOBAMSE 1
+#define DIB0090_CFG_ANALOG_OUTPUT 1
+#define DIB0090_CFG_USE_PWM_AGC 1
+#define DIB0090_CFG_CLKOUTDRIVE 1
+#define DIB0090_CFG_FREQ_OFFSET_KHZ_UHF (-63)
+#define DIB0090_CFG_FREQ_OFFSET_KHZ_VHF (-143)
+#define DIB0090_CFG_F_REF_CLOCK_RATIO 6
+#define DIB0090_CFG_IO_PLL_BYPASS 1
+#define DIB0090_CFG_IO_PLL_RANGE 1
+#define DIB0090_CFG_IO_PLL_PREDIV 1
+#define DIB0090_CFG_IO_PLL_LOOPDIV 20
+#define DIB0090_CFG_IO_ADC_CLOCK_RATIO 8
+#define DIB0090_CFG_IO_PLL_INT_LOOP_FILT 0
+#define DIB0090_CFG_IO_CLOCK_KHZ 12000
+#define DIB0090_CFG_WBD_VHF_OFFSET 0
+#define DIB0090_CFG_WBD_CBAND_OFFSET 0
+#define DIB0090_CFG_FORCE_CRYSTAL_MODE 0

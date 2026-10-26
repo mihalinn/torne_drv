@@ -1,0 +1,12 @@
+*.o
+*.ko
+*.mod
+*.mod.c
+*.cmd
+.*.cmd
+modules.order
+Module.symvers
+.tmp_versions/
+libifd_torne.so
+tools/torne_user
+*.ts
