@@ -1,8 +1,8 @@
-# Regenerating the generated headers
+# 自動生成ヘッダーの作り直し
 
-`driver/torne_fw_gen.h` (FR30 machine code, register addresses) and `driver/torne_dib_tables_gen.h` (DiB8096 tables and board
-configuration) are generated from [coax](https://github.com/Till0196/coax) (tested with v0.1.0), which builds the machine code
-with its own program builder. The Go files here are tests that print C source.
+`driver/torne_fw_gen.h`(FR30 の機械語とレジスタのアドレス)と `driver/torne_dib_tables_gen.h`(DiB8096 の表とボード設定)は、
+[coax](https://github.com/Till0196/coax)(v0.1.0 で確認)から生成したものです。機械語は、coax 自身のプログラムビルダーで作っています。
+このディレクトリの Go ファイルは、C のソースを出力するテストです。
 
 ```sh
 git clone https://github.com/Till0196/coax && cd coax
@@ -16,6 +16,6 @@ GEN_OUT=/path/to/torne_drv/driver/torne_dib_tables_gen.h \
     go test ./internal/coaxd/demod/dib8096/ -run TestGenDibTables -count=1
 ```
 
-`trace_test.go` (`TRACE_OUT=file go test ... -run TestTraceTorne`) writes the USB request sequence of coax's bridge against a fake
-memory device. `tools/torne_user emu-trace` prints the same for the C code, so the two can be compared with `diff`
-(only the time-derived value written at 0x017a3c00 and coax's bulk command channel setup differ).
+`trace_test.go`(`TRACE_OUT=file go test ... -run TestTraceTorne`)は、coax のブリッジが偽のメモリデバイスに対して出す USB 要求の列を、ファイルに書き出します。
+`tools/torne_user emu-trace` が、C 版の同じ列を出力するので、`diff` で比べられます
+(違うのは、0x017a3c00 に書く時刻由来の値と、coax の bulk コマンドチャンネルの設定だけです)。
