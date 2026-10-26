@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
+/* From px4_drv (nns779; tsukumijima fork 0.6.1), GPL-2.0-only. See NOTICE. */
 // ptx_ioctl.h
 
 #ifndef __PTX_IOCTL_H__

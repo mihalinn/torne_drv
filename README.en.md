@@ -12,7 +12,7 @@ A Linux driver for the **Sony CECH-ZD1 J** ("torne", the PS3 terrestrial tuner) 
 
 ## What it is built from
 
-The hard part, working out how the torne's Fujitsu MB86H47A USB bridge is driven, was done by [coax](https://github.com/Till0196/coax) (Till0196). This driver is a port of coax's bridge and DiB8096 code from Go to C, put into a kernel module, with px4_drv's character device layer on top. See [NOTICE](NOTICE). It is **not** a fork of either project.
+The hard part, working out how the torne's Fujitsu MB86H47A USB bridge is driven, was done by [coax](https://github.com/Till0196/coax) (Till0196). This driver is a port of coax's bridge and DiB8096 code from Go to C, put into a kernel module, with the character device layer of px4_drv (the original by [nns779](https://github.com/nns779/px4_drv) and the maintained [tsukumijima fork](https://github.com/tsukumijima/px4_drv), version 0.6.1) on top. See [NOTICE](NOTICE). It is **not** a fork of either project.
 
 ## Install
 

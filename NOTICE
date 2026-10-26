@@ -15,16 +15,19 @@ It is built on the work of others. Their notices, and what was taken from each, 
    builder (tools/gen/dump_test.go runs it).
 
 2. The Linux kernel media subsystem (dib8000.c, dib0090.c, dibx000_common.c, dib0700_devices.c)
-   Copyright (C) 2005-9 DiBcom, SA et al, GPL-2.0
+   Copyright (C) 2005-9 DiBcom, SA et al (authors include Patrick Boettcher and Olivier Grenie).
+   dib8000.c, dibx000_common.c and dib0700_devices.c are GPL-2.0-only; dib0090.c is GPL-2.0-or-later and is used here
+   under version 2.
    The DiB8000 demodulator and DiB0090 tuner code, the board configuration and the tune override come from
    there, by way of coax's port.
 
-3. px4_drv - https://github.com/nns779/px4_drv
-   Copyright (c) 2018-2021 nns779 (and the contributors of its forks), GPL-2.0-only
+3. px4_drv - https://github.com/nns779/px4_drv (original), https://github.com/tsukumijima/px4_drv (maintained fork)
+   Copyright (c) 2018-2021 nns779 and the contributors of the fork (tsukumijima and others), GPL-2.0-only
    driver/ptx_chrdev.c, driver/ptx_chrdev.h, driver/ringbuffer.c, driver/ringbuffer.h, driver/ptx_ioctl.h and
-   driver/print_format.h are taken from px4_drv (only the isdb2056-specific message was removed from
-   ptx_chrdev.c). They give the character device its interface (/dev/xxxvideoN, ioctl, read()), so programs
-   written for px4_drv devices work unchanged.
+   driver/print_format.h were copied from the tsukumijima/px4_drv 0.6.1 source tree (only the isdb2056-specific
+   message was removed from ptx_chrdev.c). They give the character device its interface (/dev/xxxvideoN, ioctl,
+   read()), so programs written for px4_drv devices work unchanged. The fork's changes for newer kernels
+   (for example the LINUX_VERSION_CODE checks in ptx_chrdev.c) come with them.
 
 Sony, PlayStation and torne are trademarks of their owners. This project is not affiliated with or endorsed by
 Sony, DiBcom, Fujitsu, PLEX or any of the projects above.

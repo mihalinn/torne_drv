@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only
 # Kbuild for torne_drv
 obj-m := torne_drv.o
 torne_drv-y := torne_kern.o ptx_chrdev.o ringbuffer.o torne_bridge.o torne_dib.o torne_card.o

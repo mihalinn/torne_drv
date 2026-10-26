@@ -12,7 +12,7 @@ PS3用の地デジチューナー **Sony CECH-ZD1 J(torne)** を、[px4_drv](htt
 
 ## 元にしたもの
 
-torne の富士通 MB86H47A という USB ブリッジの動かし方は、[coax](https://github.com/Till0196/coax)(Till0196 さん)が解析したものです。このドライバーは、coax のブリッジと DiB8096 の処理を Go から C に移して、カーネルモジュールにし、px4_drv の文字デバイス層を載せたものです。詳しくは [NOTICE](NOTICE) を見てください。**どちらのフォークでもありません。**
+torne の富士通 MB86H47A という USB ブリッジの動かし方は、[coax](https://github.com/Till0196/coax)(Till0196 さん)が解析したものです。このドライバーは、coax のブリッジと DiB8096 の処理を Go から C に移して、カーネルモジュールにし、px4_drv(本家 [nns779](https://github.com/nns779/px4_drv) と、メンテナンスを引き継いだ [tsukumijima 版](https://github.com/tsukumijima/px4_drv) 0.6.1)の文字デバイス層を載せたものです。詳しくは [NOTICE](NOTICE) を見てください。**どちらのフォークでもありません。**
 
 ## 必要なもの
 
