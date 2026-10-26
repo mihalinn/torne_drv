@@ -10,3 +10,4 @@ Module.symvers
 libifd_torne.so
 tools/torne_user
 *.ts
+dist/

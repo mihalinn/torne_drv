@@ -1,40 +1,68 @@
-# torne_drv
+# torne_drv - Sony CECH-ZD1 J (PS3「torne」) 用 Linux ドライバー
 
-PS3用の地デジチューナー **Sony CECH-ZD1 J(torne)** を、[px4_drv](https://github.com/nns779/px4_drv) と同じ形で使えるようにする Linux ドライバーです。
+PS3 用の地デジチューナー **Sony CECH-ZD1 J(torne)** を、[px4_drv](https://github.com/tsukumijima/px4_drv) と同じ形で使えるようにする、非公式の Linux ドライバーです。
 
 [English](README.en.md)
 
 - **映像:** `/dev/tornevideoN` ができます。`/dev/px4video*` と同じ ioctl・`read()` なので、`recisdb`、`recpt1`、Mirakurun、EDCB、KonomiTV から、PLEX のチューナーと同じように使えます。
 - **B-CAS カード:** torne 本体のカードスロットを、pcscd から普通のリーダーとして使えます(`/dev/tornecardN` と pcscd 用ドライバー)。カードは torne に差したままにできます。
 - **地デジ(ISDB-T)のみ。** 1台につきチューナー1基です。**torne 専用**で、ほかの機器には対応しません。
+- **DKMS + Debian パッケージ対応。** `.deb` を入れるだけで、カーネルが更新されたときに、ドライバーが自動で再ビルドされます。
 
-> **ベータ版です。** 確認したのは、torne 1台、Ubuntu 22.04(カーネル 5.15)、x86-64 だけです。ほかのカーネル、2台以上、長時間の運用は未確認です。[制限](#制限)も読んでください。
+> **ベータ版です。** 実機(torne 1台)で動作を確認したのは、Ubuntu 22.04(カーネル 5.15)・x86-64 だけです。新しいカーネルについては、[確認済みのカーネル](#確認済みのカーネル) を見てください。
 
 ## 元にしたもの
 
 torne の富士通 MB86H47A という USB ブリッジの動かし方は、[coax](https://github.com/Till0196/coax)(Till0196 さん)が解析したものです。このドライバーは、coax のブリッジと DiB8096 の処理を Go から C に移して、カーネルモジュールにし、px4_drv(本家 [nns779](https://github.com/nns779/px4_drv) と、メンテナンスを引き継いだ [tsukumijima 版](https://github.com/tsukumijima/px4_drv) 0.6.1)の文字デバイス層を載せたものです。詳しくは [NOTICE](NOTICE) を見てください。
 
-## 必要なもの
+## インストール (Debian / Ubuntu)
 
-- Linux(x86-64)。Ubuntu 22.04 / カーネル 5.15 で確認しています。
-- torne(CECH-ZD1 J)、アンテナ、B-CAS カード(torne のスロットに差す)。
-- 録画ソフト側: `recisdb` や Mirakurun など、px4_drv のチューナーを使えるもの。
+Debian パッケージは [リリースページ](https://github.com/mihalinn/torne_drv/releases) にあります。ドライバー本体(DKMS のソースパッケージなので、CPU の種類によらず共通)と、B-CAS カードスロット用の pcscd ドライバー(amd64)の2つです。
 
-## インストール
+```bash
+# Debian パッケージをダウンロードしてインストール
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.0/torne-drv-dkms_0.1.0_all.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.0/torne-drv-pcsc_0.1.0_amd64.deb
+sudo apt install -y ./torne-drv-dkms_0.1.0_all.deb ./torne-drv-pcsc_0.1.0_amd64.deb
+rm ./torne-drv-dkms_0.1.0_all.deb ./torne-drv-pcsc_0.1.0_amd64.deb
 
-```sh
-sudo apt install dkms linux-headers-$(uname -r) build-essential libpcsclite-dev pcscd
+# ドライバーをロード (インストール時にもロードされますが、念のため。次回の起動からは自動でロードされます)
+sudo modprobe torne_drv
+
+# torne_drv がロードされているかを確認 (ちゃんとログが出てきたら OK)
+lsmod | grep -e ^torne_drv
+dmesg | grep torne
+ls -la /dev | grep -e torne
+```
+
+`/dev/tornevideo0` と `/dev/tornecard0` が見えれば成功です。見えないときは、USB の接続を確認したり、抜き差ししてください。
+
+`torne-drv-pcsc` を入れると、pcscd が torne のカードスロットを「Sony CECH-ZD1 J Smart Card Reader」として認識します。確認は次のとおりです(カードは torne のスロットに差しておきます)。
+
+```bash
+pcsc_scan
+```
+
+`torne-drv-pcsc` を入れなければ、外付けのカードリーダー(SCR3310 など)を、これまでどおり使えます。
+
+アンインストールは、`sudo apt remove torne-drv-dkms torne-drv-pcsc` です。
+
+### Debian パッケージを使わずに入れる
+
+ソースから入れる場合です(Debian 系以外のディストリビューションなど)。
+
+```bash
+sudo apt install dkms linux-headers-$(uname -r) build-essential libpcsclite-dev pcscd   # Debian / Ubuntu の場合
+git clone https://github.com/mihalinn/torne_drv.git && cd torne_drv
 make                  # pcscd 用ドライバー(ifd/)と試験ツール(tools/)をビルド
 sudo ./install.sh     # DKMS のカーネルモジュール、udev ルール、pcscd ドライバーを入れる
 ```
 
-`/dev/tornevideo0` と `/dev/tornecard0` ができます。取り外しは `sudo ./install.sh uninstall` です。
-
-pcscd のドライバーを入れたあとは、`sudo systemctl restart pcscd.socket pcscd` で、リーダーが見えるようになります(`pcsc_scan` で「Sony CECH-ZD1 J Smart Card Reader」が出れば成功です)。
+取り外しは `sudo ./install.sh uninstall` です。自分で Debian パッケージを作るには、`./packaging/build-deb.sh`(`dist/` に出力されます)です。
 
 ## 使い方
 
-```sh
+```bash
 # pcscd のカードで復号しながら録画
 recisdb tune --device /dev/tornevideo0 --channel T33 -t 60 out.ts
 # 復号しない
@@ -53,6 +81,18 @@ Mirakurun の `tuners.yml` は、PLEX のチューナーと同じ書き方です
 
 チャンネルの指定は px4_drv の ioctl(`PTX_SET_CHANNEL`)と同じです。地デジ UHF 13〜62ch は `freq_no = ch + 50` です。
 
+pcscd に、torne のカードスロット以外のリーダー(外付けリーダーなど)もある場合は、recisdb が最初のリーダーを選びます。使うリーダーを指定したいときは、`--card` を使ってください。
+
+## 確認済みのカーネル
+
+| ディストリビューション | カーネル | 確認した内容 |
+| --- | --- | --- |
+| Ubuntu 22.04 | 5.15 | **実機の torne で動作確認**(視聴、録画、番組表の取得、B-CAS の復号、USB の抜き差し、`.deb` からの導入) |
+| Ubuntu 24.04 | 6.8 | ビルド、DKMS の導入と削除、モジュールの読み込み(**実機の torne は未接続**) |
+| Ubuntu 24.04 (HWE) | 7.0 | ビルドと DKMS の導入のみ(**実機の torne は未接続**) |
+
+x86-64 だけを確認しています。ARM は未確認です。ほかのカーネルで問題があれば、issue で教えてください。
+
 ## 制限
 
 - **チューナーは1基で、地デジのみ。** 視聴、録画、番組表(EPG)の取得は、同時にできません。
@@ -60,7 +100,6 @@ Mirakurun の `tuners.yml` は、PLEX のチューナーと同じ書き方です
 - **選局に 2〜3 秒かかります。** レジスタの書き込みを USB で1つずつ送るためです(coax のリング・コマンドチャンネルによる高速化は移植していません)。
 - **複数台は未確認です。** `tornevideo0`、`tornevideo1` の番号は、差した位置ではなく、認識された順です。複数台で使うときは、recisdb の `--card` で、チューナーとカードの組み合わせを自分で指定してください。
 - **USB を抜き差ししても、デバイスは自動で復帰します。** ただし、止まった視聴や録画は、自動では再開しません。もう一度始めてください。
-- **Ubuntu 22.04 / カーネル 5.15 以外は未確認です。**
 
 ## 構成
 
@@ -68,6 +107,7 @@ Mirakurun の `tuners.yml` は、PLEX のチューナーと同じ書き方です
 | --- | --- |
 | `driver/` | カーネルモジュール(`torne_kern.c`)、OS に依存しない中核(`torne_bridge.c` `torne_dib.c` `torne_card.c`)、px4_drv の文字デバイス層 |
 | `ifd/` | カードスロット用の pcscd リーダードライバー |
+| `packaging/` | Debian パッケージを作るスクリプト |
 | `tools/` | `torne_user`(同じ中核を libusb でユーザー空間から動かす試験ツール)、試験スクリプト、表と機械語の生成プログラム(`tools/gen`) |
 | `udev/` | udev ルール |
 
@@ -77,7 +117,7 @@ Mirakurun の `tuners.yml` は、PLEX のチューナーと同じ書き方です
 
 カーネルモジュールを外してから使います(両方は同時に torne を使えません)。
 
-```sh
+```bash
 sudo rmmod torne_drv
 sudo tools/torne_user probe             # ブリッジの起動と DiB8000 の ID 確認
 sudo tools/torne_user tune 33 10 > t.ts # 地デジ 33ch を 10 秒受信
