@@ -23,6 +23,7 @@
 #include <linux/mutex.h>
 #include <linux/workqueue.h>
 #include <linux/jiffies.h>
+#include <linux/bitops.h>
 
 #include <linux/miscdevice.h>
 #include <linux/uaccess.h>
@@ -86,6 +87,7 @@ struct torne_device {
 	struct miscdevice misc;
 	char misc_name[16];
 	bool misc_registered;
+	int card_id;
 
 	/* streaming */
 	struct torne_urb urbs[TORNE_URB_NUM];
@@ -567,7 +569,20 @@ static struct ptx_chrdev_operations torne_chrdev_ops = {
 
 /* ---- card slot (/dev/tornecardN) ---- */
 
-static atomic_t torne_card_seq = ATOMIC_INIT(0);
+/* the lowest free number is used, and given back on disconnect: the pcscd driver only looks at tornecard0..15 */
+static DECLARE_BITMAP(torne_card_map, TORNE_MAX_DEVICE);
+
+static int torne_card_id_get(void)
+{
+	int n;
+
+	do {
+		n = find_first_zero_bit(torne_card_map, TORNE_MAX_DEVICE);
+		if (n >= TORNE_MAX_DEVICE)
+			return -1;
+	} while (test_and_set_bit(n, torne_card_map));
+	return n;
+}
 
 static struct torne_device *card_file_to_torne(struct file *file)
 {
@@ -765,15 +780,23 @@ static int torne_probe(struct usb_interface *intf, const struct usb_device_id *i
 	atomic_set(&t->available, 1);
 
 	/* the card slot: /dev/tornecardN */
-	snprintf(t->misc_name, sizeof(t->misc_name), "tornecard%d", atomic_inc_return(&torne_card_seq) - 1);
-	t->misc.minor = MISC_DYNAMIC_MINOR;
-	t->misc.name = t->misc_name;
-	t->misc.fops = &torne_card_fops;
-	t->misc.mode = 0660;
-	if (misc_register(&t->misc))
-		dev_warn(dev, "cannot register the card slot device\n");
-	else
-		t->misc_registered = true;
+	t->card_id = torne_card_id_get();
+	if (t->card_id < 0) {
+		dev_warn(dev, "too many devices for the card slot\n");
+	} else {
+		snprintf(t->misc_name, sizeof(t->misc_name), "tornecard%d", t->card_id);
+		t->misc.minor = MISC_DYNAMIC_MINOR;
+		t->misc.name = t->misc_name;
+		t->misc.fops = &torne_card_fops;
+		t->misc.mode = 0660;
+		if (misc_register(&t->misc)) {
+			dev_warn(dev, "cannot register the card slot device\n");
+			clear_bit(t->card_id, torne_card_map);
+			t->card_id = -1;
+		} else {
+			t->misc_registered = true;
+		}
+	}
 
 	usb_set_intfdata(intf, ctx);
 	return 0;
@@ -797,8 +820,10 @@ static void torne_disconnect(struct usb_interface *intf)
 	usb_set_intfdata(intf, NULL);
 
 	atomic_set(&t->available, 0);
-	if (t->misc_registered)
+	if (t->misc_registered) {
 		misc_deregister(&t->misc);
+		clear_bit(t->card_id, torne_card_map);
+	}
 	ptx_chrdev_group_destroy(t->chrdev_group);
 	mutex_lock(&t->lock);
 	torne_stop_urbs(t);
