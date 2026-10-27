@@ -83,6 +83,19 @@ Channels are selected with px4_drv's ioctl (`PTX_SET_CHANNEL`; UHF 13-62ch is `f
 
 If pcscd has other readers besides the torne's slot (an external reader, for example), recisdb takes the first one. Use `--card` to choose.
 
+### From EDCB directly (BonDriver_LinuxPTX)
+
+[BonDriver_LinuxPTX](https://github.com/nns779/BonDriver_LinuxPTX) works too. Change `Device` and `Space` in `BonDriver_LinuxPTX.ini` as below; the torne is terrestrial only, so leave out the BS/CS spaces.
+
+```ini
+Name="torne"
+Device=/dev/tornevideo0
+Space=UHF
+```
+
+- Tuning a channel without a signal takes about 7 s to fail, so a channel scan takes minutes.
+- While capturing, the driver feeds null packets (PID 0x1FFF) when no data has come for 100 ms. The PLEX tuners keep delivering data, and BonDriver_LinuxPTX cannot stop its read thread otherwise (v0.1.0 hung on exit after a scan). To turn it off: `modprobe torne_drv idle_fill_ms=0`.
+
 ## Verified kernels
 
 | Distribution | Kernel | What was checked |

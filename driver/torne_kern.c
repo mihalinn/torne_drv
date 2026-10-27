@@ -21,6 +21,8 @@
 #include <linux/ktime.h>
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
+#include <linux/workqueue.h>
+#include <linux/jiffies.h>
 
 #include <linux/miscdevice.h>
 #include <linux/uaccess.h>
@@ -43,6 +45,18 @@
 static int log_level = TORNE_LOG_ERR;
 module_param(log_level, int, 0644);
 MODULE_PARM_DESC(log_level, "driver core log level (0 error, 1 info, 2 debug)");
+
+/*
+ * While capturing, if no TS data comes for this many ms (no signal, or tuned to an empty channel), null packets are fed to the
+ * reader so that read() returns. The PLEX tuners keep delivering data without a signal; some programs depend on it:
+ * BonDriver_LinuxPTX waits for its read thread to fill a whole buffer before it can stop it. 0 turns this off.
+ */
+static unsigned int idle_fill_ms = 100;
+module_param(idle_fill_ms, uint, 0644);
+MODULE_PARM_DESC(idle_fill_ms, "feed null TS packets after this many ms without data while capturing (0: off)");
+
+#define TORNE_IDLE_PERIOD_MS 20
+#define TORNE_IDLE_PACKETS 64 /* per period: about 4.8 Mbit/s of null packets */
 
 struct torne_urb {
 	struct torne_device *dev;
@@ -80,6 +94,8 @@ struct torne_device {
 	struct torne_framer *framer;
 	u8 *ts_out;
 	bool urbs_running;
+	struct delayed_work idle_work; /* feeds null packets while no data arrives */
+	unsigned long last_data;       /* jiffies of the last real TS data, under stream_lock */
 };
 
 static struct ptx_chrdev_context *torne_chrdev_ctx;
@@ -222,8 +238,10 @@ static void torne_urb_complete(struct urb *urb)
 
 		spin_lock_irqsave(&t->stream_lock, flags);
 		n = torne_framer_feed(t->framer, tu->buf, urb->actual_length, t->ts_out);
-		if (n)
+		if (n) {
 			ptx_chrdev_put_stream(t->chrdev, t->ts_out, n);
+			t->last_data = jiffies;
+		}
 		spin_unlock_irqrestore(&t->stream_lock, flags);
 	}
 
@@ -232,6 +250,35 @@ static void torne_urb_complete(struct urb *urb)
 	ret = usb_submit_urb(urb, GFP_ATOMIC);
 	if (ret && ret != -ENODEV)
 		dev_err(t->dev, "usb_submit_urb: %d\n", ret);
+}
+
+/* feeds null packets (PID 0x1fff) while the stream is idle; see idle_fill_ms */
+static void torne_idle_work(struct work_struct *work)
+{
+	struct torne_device *t = container_of(to_delayed_work(work), struct torne_device, idle_work);
+	unsigned long flags;
+	int i;
+
+	if (atomic_read(&t->stream_stop))
+		return;
+
+	spin_lock_irqsave(&t->stream_lock, flags);
+	if (t->ts_out && time_after(jiffies, t->last_data + msecs_to_jiffies(idle_fill_ms))) {
+		for (i = 0; i < TORNE_IDLE_PACKETS; i++) {
+			u8 *p = t->ts_out + i * TORNE_TS_PACKET_SIZE;
+
+			p[0] = 0x47;
+			p[1] = 0x1f;
+			p[2] = 0xff;
+			p[3] = 0x10;
+			memset(p + 4, 0xff, TORNE_TS_PACKET_SIZE - 4);
+		}
+		ptx_chrdev_put_stream(t->chrdev, t->ts_out, TORNE_IDLE_PACKETS * TORNE_TS_PACKET_SIZE);
+	}
+	spin_unlock_irqrestore(&t->stream_lock, flags);
+
+	if (!atomic_read(&t->stream_stop))
+		schedule_delayed_work(&t->idle_work, msecs_to_jiffies(TORNE_IDLE_PERIOD_MS));
 }
 
 static int torne_start_urbs(struct torne_device *t)
@@ -281,6 +328,9 @@ static int torne_start_urbs(struct torne_device *t)
 		}
 	}
 	t->urbs_running = true;
+	t->last_data = jiffies;
+	if (idle_fill_ms)
+		schedule_delayed_work(&t->idle_work, msecs_to_jiffies(TORNE_IDLE_PERIOD_MS));
 	return 0;
 
 fail:
@@ -308,6 +358,7 @@ static void torne_stop_urbs(struct torne_device *t)
 	if (!t->urbs_running)
 		return;
 	atomic_set(&t->stream_stop, 1);
+	cancel_delayed_work_sync(&t->idle_work);
 	for (i = 0; i < TORNE_URB_NUM; i++) {
 		struct torne_urb *tu = &t->urbs[i];
 
@@ -678,6 +729,7 @@ static int torne_probe(struct usb_interface *intf, const struct usb_device_id *i
 	t->quit_completion = &ctx->quit_completion;
 	mutex_init(&t->lock);
 	spin_lock_init(&t->stream_lock);
+	INIT_DELAYED_WORK(&t->idle_work, torne_idle_work);
 	t->ctrl_buf = kmalloc(64, GFP_KERNEL);
 	if (!t->ctrl_buf) {
 		ret = -ENOMEM;

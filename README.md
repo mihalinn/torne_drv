@@ -83,6 +83,19 @@ Mirakurun の `tuners.yml` は、PLEX のチューナーと同じ書き方です
 
 pcscd に、torne のカードスロット以外のリーダー(外付けリーダーなど)もある場合は、recisdb が最初のリーダーを選びます。使うリーダーを指定したいときは、`--card` を使ってください。
 
+### EDCB から直接使う (BonDriver_LinuxPTX)
+
+[BonDriver_LinuxPTX](https://github.com/nns779/BonDriver_LinuxPTX) でも使えます。`BonDriver_LinuxPTX.ini` の `Device` と `Space` を、次のように変えてください。torne は地デジ専用なので、BS/CS の空間は外します。
+
+```ini
+Name="torne"
+Device=/dev/tornevideo0
+Space=UHF
+```
+
+- 信号のないチャンネルの選局は、失敗するまでに約 7 秒かかります。チャンネルスキャンは、数分かかります。
+- ドライバーは、受信中にデータが 100 ミリ秒以上途切れると、空のパケット(PID 0x1FFF)を流します。PLEX のチューナーと同じく、データが流れ続けないと、BonDriver_LinuxPTX が終了できなくなるためです(v0.1.0 では、スキャンの後に終了できなくなる不具合がありました)。止めたいときは、`modprobe torne_drv idle_fill_ms=0` です。
+
 ## 確認済みのカーネル
 
 | ディストリビューション | カーネル | 確認した内容 |
