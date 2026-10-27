@@ -21,10 +21,10 @@ The Debian packages are on the [releases page](https://github.com/mihalinn/torne
 
 ```bash
 # download and install the Debian packages
-wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.0/torne-drv-dkms_0.1.0_all.deb
-wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.0/torne-drv-pcsc_0.1.0_amd64.deb
-sudo apt install -y ./torne-drv-dkms_0.1.0_all.deb ./torne-drv-pcsc_0.1.0_amd64.deb
-rm ./torne-drv-dkms_0.1.0_all.deb ./torne-drv-pcsc_0.1.0_amd64.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.1/torne-drv-dkms_0.1.1_all.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.1/torne-drv-pcsc_0.1.1_amd64.deb
+sudo apt install -y ./torne-drv-dkms_0.1.1_all.deb ./torne-drv-pcsc_0.1.1_amd64.deb
+rm ./torne-drv-dkms_0.1.1_all.deb ./torne-drv-pcsc_0.1.1_amd64.deb
 
 # load the driver (the install does it too; from the next boot it is loaded automatically)
 sudo modprobe torne_drv

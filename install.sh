@@ -5,7 +5,7 @@
 #   sudo ./install.sh            install
 #   sudo ./install.sh uninstall  remove
 set -e
-VERSION=0.1.0
+VERSION=0.1.1
 SRC=/usr/src/torne_drv-$VERSION
 here=$(cd "$(dirname "$0")" && pwd)
 
