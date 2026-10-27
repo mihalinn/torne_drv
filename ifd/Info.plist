@@ -18,7 +18,7 @@
 	<string>libifd_torne.so</string>
 
 	<key>CFBundleVersion</key>
-	<string>0.1.1</string>
+	<string>0.1.2</string>
 
 	<key>ifdCapabilities</key>
 	<string>0x00000000</string>

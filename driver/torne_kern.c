@@ -429,9 +429,37 @@ static int torne_chrdev_release(struct ptx_chrdev *chrdev)
 	return 0;
 }
 
+/* stops the stream: the URBs, the bridge's stream and the demodulator output. t->lock held */
+static void torne_stream_halt(struct torne_device *t)
+{
+	torne_stop_urbs(t);
+	if (atomic_read(&t->available) && t->ready) {
+		torne_bridge_stop_stream(&t->bridge);
+		torne_dib_set_output(&t->dib, TORNE_OUT_HIGHZ);
+	}
+}
+
+/* starts the stream, after torne_bridge_prepare_stream. t->lock held */
+static int torne_stream_run(struct torne_device *t)
+{
+	int ret;
+
+	ret = torne_dib_set_output(&t->dib, TORNE_OUT_PARALLEL_GATED);
+	if (ret)
+		return ret;
+	ret = torne_bridge_start_stream(&t->bridge);
+	if (ret)
+		return ret;
+	ret = torne_start_urbs(t);
+	if (ret)
+		torne_bridge_stop_stream(&t->bridge);
+	return ret;
+}
+
 static int torne_chrdev_tune(struct ptx_chrdev *chrdev, struct ptx_tune_params *params)
 {
 	struct torne_device *t = chrdev_to_torne(chrdev);
+	bool resume;
 	int ret;
 
 	if (params->system != PTX_ISDB_T_SYSTEM)
@@ -442,10 +470,27 @@ static int torne_chrdev_tune(struct ptx_chrdev *chrdev, struct ptx_tune_params *
 		mutex_unlock(&t->lock);
 		return -ENODEV;
 	}
+	/*
+	 * The bridge's stream setup only works from the stopped state. Programs like BonDriver_LinuxPTX change the channel
+	 * while the stream is running, so stop it here and start it again after the tune (also when the tune fails, so that
+	 * the reader keeps getting data, null packets at least).
+	 */
+	resume = t->urbs_running;
+	if (resume)
+		torne_stream_halt(t);
 	/* the stream setup runs ahead of the tune, as coax does in its waits */
 	ret = torne_bridge_prepare_stream(&t->bridge);
 	if (!ret)
 		ret = torne_dib_tune(&t->dib, params->freq * 1000u); /* params->freq is in kHz for ISDB-T */
+	if (resume) {
+		int rret = torne_stream_run(t);
+
+		if (rret) {
+			dev_err(t->dev, "cannot resume the stream after the tune: %d\n", rret);
+			if (!ret)
+				ret = rret;
+		}
+	}
 	mutex_unlock(&t->lock);
 	if (ret)
 		dev_dbg(t->dev, "tune %u kHz failed: %d\n", params->freq, ret);
@@ -481,15 +526,7 @@ static int torne_chrdev_start_capture(struct ptx_chrdev *chrdev)
 		ret = -ENODEV;
 		goto out;
 	}
-	ret = torne_dib_set_output(&t->dib, TORNE_OUT_PARALLEL_GATED);
-	if (ret)
-		goto out;
-	ret = torne_bridge_start_stream(&t->bridge);
-	if (ret)
-		goto out;
-	ret = torne_start_urbs(t);
-	if (ret)
-		torne_bridge_stop_stream(&t->bridge);
+	ret = torne_stream_run(t);
 out:
 	mutex_unlock(&t->lock);
 	return ret;
@@ -500,11 +537,7 @@ static int torne_chrdev_stop_capture(struct ptx_chrdev *chrdev)
 	struct torne_device *t = chrdev_to_torne(chrdev);
 
 	mutex_lock(&t->lock);
-	torne_stop_urbs(t);
-	if (atomic_read(&t->available) && t->ready) {
-		torne_bridge_stop_stream(&t->bridge);
-		torne_dib_set_output(&t->dib, TORNE_OUT_HIGHZ);
-	}
+	torne_stream_halt(t);
 	mutex_unlock(&t->lock);
 	return 0;
 }

@@ -21,10 +21,10 @@ Debian パッケージは [リリースページ](https://github.com/mihalinn/to
 
 ```bash
 # Debian パッケージをダウンロードしてインストール
-wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.1/torne-drv-dkms_0.1.1_all.deb
-wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.1/torne-drv-pcsc_0.1.1_amd64.deb
-sudo apt install -y ./torne-drv-dkms_0.1.1_all.deb ./torne-drv-pcsc_0.1.1_amd64.deb
-rm ./torne-drv-dkms_0.1.1_all.deb ./torne-drv-pcsc_0.1.1_amd64.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.2/torne-drv-dkms_0.1.2_all.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.2/torne-drv-pcsc_0.1.2_amd64.deb
+sudo apt install -y ./torne-drv-dkms_0.1.2_all.deb ./torne-drv-pcsc_0.1.2_amd64.deb
+rm ./torne-drv-dkms_0.1.2_all.deb ./torne-drv-pcsc_0.1.2_amd64.deb
 
 # ドライバーをロード (インストール時にもロードされますが、念のため。次回の起動からは自動でロードされます)
 sudo modprobe torne_drv
@@ -93,8 +93,9 @@ Device=/dev/tornevideo0
 Space=UHF
 ```
 
+- [xtne6f 版 EDCB](https://github.com/xtne6f/EDCB) の Linux 版では、`BonDriver_LinuxPTX.so` と `BonDriver_LinuxPTX.ini` を `/usr/local/lib/edcb/` に置きます。`EpgDataCap_Bon -d BonDriver_LinuxPTX.so -chscan` で、チャンネルスキャンができます(v0.1.2 で確認)。
 - 信号のないチャンネルの選局は、失敗するまでに約 7 秒かかります。チャンネルスキャンは、数分かかります。
-- ドライバーは、受信中にデータが 100 ミリ秒以上途切れると、空のパケット(PID 0x1FFF)を流します。PLEX のチューナーと同じく、データが流れ続けないと、BonDriver_LinuxPTX が終了できなくなるためです(v0.1.0 では、スキャンの後に終了できなくなる不具合がありました)。止めたいときは、`modprobe torne_drv idle_fill_ms=0` です。
+- ドライバーは、受信中にデータが 100 ミリ秒以上途切れると、空のパケット(PID 0x1FFF)を流します。PLEX のチューナーと同じく、データが流れ続けないと、BonDriver_LinuxPTX が終了できなくなるためです(v0.1.0 では、スキャンの後に終了できなくなる不具合がありました。また、v0.1.1 までは、受信中にチャンネルを変えるとデータが来なくなる不具合があり、スキャンで最初のチャンネルしか見つかりませんでした。どちらも v0.1.2 で直っています)。止めたいときは、`modprobe torne_drv idle_fill_ms=0` です。
 
 ## 確認済みのカーネル
 

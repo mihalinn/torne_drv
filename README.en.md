@@ -21,10 +21,10 @@ The Debian packages are on the [releases page](https://github.com/mihalinn/torne
 
 ```bash
 # download and install the Debian packages
-wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.1/torne-drv-dkms_0.1.1_all.deb
-wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.1/torne-drv-pcsc_0.1.1_amd64.deb
-sudo apt install -y ./torne-drv-dkms_0.1.1_all.deb ./torne-drv-pcsc_0.1.1_amd64.deb
-rm ./torne-drv-dkms_0.1.1_all.deb ./torne-drv-pcsc_0.1.1_amd64.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.2/torne-drv-dkms_0.1.2_all.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.2/torne-drv-pcsc_0.1.2_amd64.deb
+sudo apt install -y ./torne-drv-dkms_0.1.2_all.deb ./torne-drv-pcsc_0.1.2_amd64.deb
+rm ./torne-drv-dkms_0.1.2_all.deb ./torne-drv-pcsc_0.1.2_amd64.deb
 
 # load the driver (the install does it too; from the next boot it is loaded automatically)
 sudo modprobe torne_drv
@@ -93,8 +93,9 @@ Device=/dev/tornevideo0
 Space=UHF
 ```
 
+- With the Linux build of [xtne6f's EDCB](https://github.com/xtne6f/EDCB), put `BonDriver_LinuxPTX.so` and `BonDriver_LinuxPTX.ini` in `/usr/local/lib/edcb/`. `EpgDataCap_Bon -d BonDriver_LinuxPTX.so -chscan` then scans the channels (checked with v0.1.2).
 - Tuning a channel without a signal takes about 7 s to fail, so a channel scan takes minutes.
-- While capturing, the driver feeds null packets (PID 0x1FFF) when no data has come for 100 ms. The PLEX tuners keep delivering data, and BonDriver_LinuxPTX cannot stop its read thread otherwise (v0.1.0 hung on exit after a scan). To turn it off: `modprobe torne_drv idle_fill_ms=0`.
+- While capturing, the driver feeds null packets (PID 0x1FFF) when no data has come for 100 ms. The PLEX tuners keep delivering data, and BonDriver_LinuxPTX cannot stop its read thread otherwise (v0.1.0 hung on exit after a scan. Up to v0.1.1, changing the channel while capturing also stopped the data, so a scan found only the first channel. Both are fixed in v0.1.2). To turn it off: `modprobe torne_drv idle_fill_ms=0`.
 
 ## Verified kernels
 
