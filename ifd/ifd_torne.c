@@ -192,7 +192,7 @@ RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag, PDWORD Length, PUCHAR Val
 		if (*Length < 1)
 			return IFD_ERROR_TAG;
 		*Length = 1;
-		*Value = 1;
+		*Value = MAX_READERS;
 		return IFD_SUCCESS;
 	case TAG_IFD_THREAD_SAFE:
 	case TAG_IFD_SLOT_THREAD_SAFE:
