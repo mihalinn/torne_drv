@@ -822,6 +822,7 @@ static int torne_probe(struct usb_interface *intf, const struct usb_device_id *i
 		t->misc.name = t->misc_name;
 		t->misc.fops = &torne_card_fops;
 		t->misc.mode = 0660;
+		t->misc.parent = &intf->dev;
 		if (misc_register(&t->misc)) {
 			dev_warn(dev, "cannot register the card slot device\n");
 			clear_bit(t->card_id, torne_card_map);
