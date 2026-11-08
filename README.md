@@ -21,10 +21,10 @@ Debian パッケージは [リリースページ](https://github.com/mihalinn/to
 
 ```bash
 # Debian パッケージをダウンロードしてインストール
-wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.2/torne-drv-dkms_0.1.2_all.deb
-wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.2/torne-drv-pcsc_0.1.2_amd64.deb
-sudo apt install -y ./torne-drv-dkms_0.1.2_all.deb ./torne-drv-pcsc_0.1.2_amd64.deb
-rm ./torne-drv-dkms_0.1.2_all.deb ./torne-drv-pcsc_0.1.2_amd64.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.3/torne-drv-dkms_0.1.3_all.deb
+wget https://github.com/mihalinn/torne_drv/releases/download/v0.1.3/torne-drv-pcsc_0.1.3_amd64.deb
+sudo apt install -y ./torne-drv-dkms_0.1.3_all.deb ./torne-drv-pcsc_0.1.3_amd64.deb
+rm ./torne-drv-dkms_0.1.3_all.deb ./torne-drv-pcsc_0.1.3_amd64.deb
 
 # ドライバーをロード (インストール時にもロードされますが、念のため。次回の起動からは自動でロードされます)
 sudo modprobe torne_drv

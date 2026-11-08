@@ -7,7 +7,7 @@
 #
 # Needs: dpkg-dev (dpkg-deb), gcc, libpcsclite-dev. Run from anywhere:  ./packaging/build-deb.sh
 set -e
-VERSION=0.1.2
+VERSION=0.1.3
 here=$(cd "$(dirname "$0")" && pwd)
 top=$(dirname "$here")
 out="$top/dist"

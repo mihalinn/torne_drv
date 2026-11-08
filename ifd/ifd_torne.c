@@ -95,6 +95,18 @@ static void parse_device_name(const char *name, int *bus, int *dev)
 		sscanf(p + strlen("/dev/bus/usb/"), "%d/%d", bus, dev);
 }
 
+/* is /dev/tornecardN already opened for another reader? (call with readers_lock held) */
+static int card_in_use(const char *path, unsigned int self)
+{
+	unsigned int i;
+
+	for (i = 0; i < MAX_READERS; i++) {
+		if (i != self && readers[i].fd >= 0 && strcmp(readers[i].path, path) == 0)
+			return 1;
+	}
+	return 0;
+}
+
 static RESPONSECODE open_reader(DWORD lun, const char *name)
 {
 	unsigned int index = lun >> 16;
@@ -118,7 +130,8 @@ static RESPONSECODE open_reader(DWORD lun, const char *name)
 		snprintf(path, sizeof(path), "/dev/tornecard%d", card);
 		if (access(path, F_OK) != 0)
 			continue;
-		if (first < 0)
+		/* without a USB match, fall back to the lowest slot that no other reader has taken */
+		if (first < 0 && !card_in_use(path, index))
 			first = card;
 		if (want_bus >= 0 && usb_numbers(card, &bus, &dev) == 0 && bus == want_bus && dev == want_dev) {
 			chosen = card;
